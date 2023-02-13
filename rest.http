@@ -1,0 +1,36 @@
+@baseUrl = https://4cb90390.r5.vip.cpolar.cn
+
+
+###
+GET {{baseUrl}}/user HTTP/1.1
+
+###
+GET {{baseUrl}}/user/3 HTTP/1.1
+
+###
+GET {{baseUrl}}/user/22 HTTP/1.1
+
+###
+POST {{baseUrl}}/user HTTP/1.1
+content-type: application/json
+
+{
+    "username": "troy",
+    "dept": "KD",
+    "email":"cly@ginform.com",
+    "phone":"13672999999",
+    "password":"123456"
+}
+
+### Login
+POST {{baseUrl}}/login HTTP/1.1
+content-type: application/json
+
+{
+    "identity":"troy",
+    "password":"123456"
+}
+
+###
+GET {{baseUrl}}/user HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ0cm95IiwiaXNzIjoiR2luRm9ybSIsImV4cCI6MTY3NjMyODM2M30.zw5TVW9QRjUMk0qHuT69b23M1Btenud4A-JzQxccZ-E
