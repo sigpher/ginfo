@@ -1,16 +1,9 @@
-@baseUrl = https://4cb90390.r5.vip.cpolar.cn
+@baseUrl = https://7bf374b9.r5.vip.cpolar.cn
 
-
-###
+### Home
 GET {{baseUrl}}/user HTTP/1.1
-
-###
-GET {{baseUrl}}/user/3 HTTP/1.1
-
-###
-GET {{baseUrl}}/user/22 HTTP/1.1
-
-###
+ 
+### CreateUser
 POST {{baseUrl}}/user HTTP/1.1
 content-type: application/json
 
@@ -31,6 +24,15 @@ content-type: application/json
     "password":"123456"
 }
 
-###
+### GetUser
 GET {{baseUrl}}/user HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ0cm95IiwiaXNzIjoiR2luRm9ybSIsImV4cCI6MTY3NjMyODM2M30.zw5TVW9QRjUMk0qHuT69b23M1Btenud4A-JzQxccZ-E
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ0cm95IiwiaXNzIjoiR2luRm9ybSIsImV4cCI6MTY3NjM1NTA4OX0.b7D15R_PyAf8zBxtaUchaPLimEGEQ1O7MNWjS36lbDk eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ0cm95IiwiaXNzIjoiR2luRm9ybSIsImV4cCI6MTY3NjM1NTEwOX0.z_oLK_XYud7WsgAdRcH-8kXXlMFjik9PBlmcPdpbGBQ
+
+### GetUser/:id
+GET {{baseUrl}}/user/1 HTTP/1.1
+
+### GetUser/:id
+GET {{baseUrl}}/user/22 HTTP/1.1
+
+
+

@@ -8,12 +8,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-var mySigningKey = []byte("time@still")
 var shortTokenSigningKey = []byte("short@secret")
 var longTokenSigningKey = []byte("long@secret")
 
 const TokenExpireDuration = time.Second * 24
-const ShortTokenExpireDuration = time.Second * 20
+const ShortTokenExpireDuration = time.Second * 40
 const LongTokenExpireDuration = time.Second * 60
 
 type CustomClaims struct {
@@ -22,22 +21,7 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenToken(id uint, username string) (string, error) {
-	claims := CustomClaims{
-		id,
-		username,
-
-		jwt.RegisteredClaims{
-			Issuer:    "GinForm",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString(mySigningKey)
-}
-
-func GenDoubleToken(id uint, username string) (string, string, error) {
+func GenDoubleToken(id uint, username string) (string, string) {
 	sT := CustomClaims{
 		id,
 		username,
@@ -62,30 +46,16 @@ func GenDoubleToken(id uint, username string) (string, string, error) {
 	shortTokenSigned, err := shortToken.SignedString(shortTokenSigningKey)
 	if err != nil {
 		fmt.Println("获取short token失败")
-		return "", "", errors.New("")
+		return "", ""
 	}
 	longToken := jwt.NewWithClaims(jwt.SigningMethodHS256, lT)
 
 	longTokenSigned, err := longToken.SignedString(longTokenSigningKey)
 	if err != nil {
 		fmt.Println("获取short token失败")
-		return "", "", errors.New("")
+		return "", ""
 	}
-	return shortTokenSigned, longTokenSigned, nil
-}
-
-func ParseToken(tokenString string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(t *jwt.Token) (any, error) {
-		return mySigningKey, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, errors.New("invalid token")
+	return shortTokenSigned, longTokenSigned
 }
 
 func ParseDoubleToken(sToken, lToken string) (*CustomClaims, bool, error) {
@@ -93,23 +63,24 @@ func ParseDoubleToken(sToken, lToken string) (*CustomClaims, bool, error) {
 		return shortTokenSigningKey, nil
 	})
 	if err != nil {
-		return nil, false, errors.New("parse short token error")
+		return nil, false, err
 	}
 
 	if claims, ok := shortToken.Claims.(*CustomClaims); ok && shortToken.Valid {
-		return claims, true, nil
+		return claims, false, nil
 	}
 
 	longToken, err := jwt.ParseWithClaims(lToken, &CustomClaims{}, func(t *jwt.Token) (any, error) {
 		return shortTokenSigningKey, nil
 	})
 
-	if claims, ok := longToken.Claims.(*CustomClaims); ok && shortToken.Valid {
-		return claims, false, nil
+	if err != nil {
+		return nil, false, err
 	}
 
-	if err != nil {
-		return nil, false, errors.New("parse long token error")
+	if claims, ok := longToken.Claims.(*CustomClaims); ok && shortToken.Valid {
+		return claims, true, nil
 	}
+
 	return nil, false, errors.New("invalid token")
 }

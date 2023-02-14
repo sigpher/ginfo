@@ -1,44 +1,62 @@
 package middleware
 
 import (
+	"fmt"
 	"ginfo/util"
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func JWTAuthMiddleware() func(ctx *gin.Context) {
+func DoubleTokenMiddleware() func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.Request.Header.Get("Authorization")
+		fmt.Println(ctx.Request.Header)
 		if authHeader == "" {
-			ctx.JSON(http.StatusOK, gin.H{
+			ctx.JSON(200, gin.H{
 				"code": 2003,
-				"msg":  "empty request header",
+				"msg":  "请求头中auth为空",
 			})
 			ctx.Abort()
 			return
 		}
-		parts := strings.SplitN(authHeader, " ", 2)
-		if !(len(parts) == 2) && parts[0] == "Bearer" {
-			ctx.JSON(http.StatusOK, gin.H{
+		fmt.Println("authHeader = ", authHeader)
+		parts := strings.Split(authHeader, " ")
+		fmt.Println("len = ", len(parts))
+		fmt.Println("parts[0] = ", parts[0])
+		if !(len(parts) == 3 && parts[0] == "Bearer") {
+			ctx.JSON(200, gin.H{
 				"code": 2004,
-				"msg":  "wrong request header format",
+				"msg":  "请求头中auth格式有误",
 			})
 			ctx.Abort()
 			return
 		}
-		mc, err := util.ParseToken(parts[1])
+
+		parseToken, shouldUpdate, err := util.ParseDoubleToken(parts[1], parts[2])
 		if err != nil {
-			ctx.JSON(http.StatusOK, gin.H{
+			ctx.JSON(200, gin.H{
 				"code": 2005,
-				"msg":  "invalid token",
+				"msg":  "无效的Token",
 			})
 			ctx.Abort()
 			return
 		}
-		ctx.Set("id", mc.ID)
-		ctx.Set("username", mc.Username)
+		if shouldUpdate {
+			parts[1], parts[2] = util.GenDoubleToken(parseToken.ID, parseToken.Username)
+			// 如果需要刷新双Token时，返回双Token
+			ctx.JSON(200, gin.H{
+				"code": 200,
+				"msg":  "鉴权成功",
+				"data": gin.H{
+					"accessToken":  parts[1],
+					"refreshToken": parts[2],
+				},
+			})
+		}
+		ctx.Set("id", parseToken.ID)
+		ctx.Set("username", parseToken.Username)
 		ctx.Next()
 	}
+
 }

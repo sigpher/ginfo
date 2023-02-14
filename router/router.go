@@ -12,11 +12,11 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
 	database.ConnectDB()
-
+	router.GET("/", middleware.DoubleTokenMiddleware(), handler.HomeHandler)
 	user := router.Group("/user")
 	{
 		user.GET("/:id", handler.GetUser)
-		user.GET("/", middleware.JWTAuthMiddleware(), handler.GetUsers)
+		user.GET("/", middleware.DoubleTokenMiddleware(), handler.GetUsers)
 		user.POST("", handler.CreateUser)
 	}
 

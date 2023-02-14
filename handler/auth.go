@@ -167,10 +167,21 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
-	tokenString, _ := util.GenToken(user.ID, user.Username)
+
+	shortTokenString, longTokenString := util.GenDoubleToken(user.ID, user.Username)
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"msg":    "gennerate token",
-		"data":   gin.H{"token": tokenString},
+		"data": gin.H{
+			"shortToken": shortTokenString,
+			"longToken":  longTokenString,
+		},
 	})
+
+	// tokenString, _ := util.GenToken(user.ID, user.Username)
+	// ctx.JSON(http.StatusOK, gin.H{
+	// 	"status": "success",
+	// 	"msg":    "gennerate token",
+	// 	"data":   gin.H{"token": tokenString},
+	// })
 }
